@@ -1,5 +1,6 @@
 module.exports = {
     router: {
+        middleware: 'authenticated',
         linkActiveClass: 'active',
         extendRoutes(routes, resolve) {
             console.log(routes)

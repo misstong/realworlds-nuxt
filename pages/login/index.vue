@@ -11,12 +11,12 @@
         </p>
 
         <ul class="error-messages">
-          <li>That email is already taken</li>
+          <li v-for="(messages, field) in errors" :key="field">{{field + " "+messages}}</li>
         </ul>
 
         <form @submit.prevent="onSubmit">
           <fieldset class="form-group" v-if="!isLogin">
-            <input class="form-control form-control-lg" type="text" placeholder="Your Name" required>
+            <input v-model="user.username" class="form-control form-control-lg" type="text" placeholder="Your Name" required>
           </fieldset>
           <fieldset class="form-group">
             <input v-model="user.email" class="form-control form-control-lg" type="email" placeholder="Email"  required>
@@ -36,6 +36,7 @@
 </template>
 <script>
 import {login, register} from '@/api/user'
+const Cookie = process.client ? require('js-cookie') : undefined
 export default {
     name: 'login',
     computed: {
@@ -47,16 +48,28 @@ export default {
         return {
             user: {
                 email: '',
-                password: ''
-            }
+                password: '',
+                username: ''
+            },
+            errors: {}
         }
     },
     methods: {
        async onSubmit() {
             // console.log(this.user)
-            const {data} = await login({user: this.user})
-            console.log(data)
-            this.$router.push('/')
+            try{
+              const {data} = this.isLogin ? await login({user: this.user})
+                : await register({user: this.user})
+              console.log(data)
+
+              this.$store.commit('setUser', data.user)
+              Cookie.set('user', data.user)
+              this.$router.push('/')
+            }catch(e) {
+              console.dir(e)
+              this.errors = e.response.data.errors
+            }
+            
         }
     }
 }
