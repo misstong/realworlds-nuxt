@@ -17,7 +17,7 @@ export default (context) => {
             config.headers.Authorization = `Token ${user.token}`
         }
         // console.log(context)
-        console.log('config', config)
+        // console.log('config', config)
         return config;
     }, function (error) {
         // Do something with request error

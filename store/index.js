@@ -18,10 +18,10 @@ export const actions = {
 		if (req.headers.cookie) {
 			
 			const parsed = cookieparser.parse(req.headers.cookie)
-			console.log('cookie', parsed)
+			// console.log('cookie', parsed)
 			try {
 				user = JSON.parse(parsed.user)
-				console.log('user', user)
+				// console.log('user', user)
 			}catch(err){
 
 			}
