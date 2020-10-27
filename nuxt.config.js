@@ -1,6 +1,6 @@
 module.exports = {
     router: {
-        middleware: 'authenticated',
+        // middleware: 'authenticated',
         linkActiveClass: 'active',
         extendRoutes(routes, resolve) {
             console.log(routes)
@@ -55,5 +55,7 @@ module.exports = {
                 }
             ])
         }
-    }
+    },
+    plugins: ['~/plugins/request.js',
+    '~/plugins/day.js']
 }
