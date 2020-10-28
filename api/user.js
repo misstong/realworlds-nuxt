@@ -15,3 +15,23 @@ export const register = (data) => {
         data
     })
 }
+
+export const updateUser = (data) => {
+    return request({
+        method: 'put',
+        url: 'user',
+        data
+    })
+}
+
+export const getUser = () => {
+    return request({
+        url: 'user'
+    })
+}
+
+export const getProfile = (username) => {
+    return request({
+        url: `profiles/${username}`
+    })
+}

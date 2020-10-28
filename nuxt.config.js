@@ -3,7 +3,7 @@ module.exports = {
         // middleware: 'authenticated',
         linkActiveClass: 'active',
         extendRoutes(routes, resolve) {
-            console.log(routes)
+            // console.log(routes)
             // routes.push({
             //     name: 'custom',
             //     path: '*',
