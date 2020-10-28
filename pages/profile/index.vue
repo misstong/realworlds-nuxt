@@ -11,7 +11,9 @@
           <p>
             {{profile.bio}}
           </p>
-          <button class="btn btn-sm btn-outline-secondary action-btn">
+          <button class="btn btn-sm btn-outline-secondary action-btn"
+            @click="onFollow(profile)"
+            :disable="profile.followDisabled">
             <i class="ion-plus-round"></i>
             &nbsp;
             Follow Eric Simons 
@@ -36,26 +38,46 @@
           </ul>
         </div>
 
-         <div class="article-preview">
+         <div class="article-preview"
+           v-for="article in articles"
+           :key="article.slug">
           <div class="article-meta">
-            <a href=""><img src="http://i.imgur.com/N4VcUeJ.jpg" /></a>
+            <nuxt-link :to="{
+              name: 'profile',
+              params: {
+                username: article.author.username
+              }
+            }"><img :src="article.author.image" /></nuxt-link>
             <div class="info">
-              <a href="" class="author">Albert Pai</a>
-              <span class="date">January 20th</span>
+              <nuxt-link :to="{
+                name: 'profile',
+                params: {
+                  username: article.author.username
+                }
+              }" class="author">{{article.author.username}}</nuxt-link>
+              <span class="date">{{article.createdAt | date}}</span>
             </div>
-            <button class="btn btn-outline-primary btn-sm pull-xs-right">
-              <i class="ion-heart"></i> 32
+            <button class="btn btn-outline-primary btn-sm pull-xs-right"
+              :class="{active: article.favorited}"
+              @click="onFavorite(article)"
+              :disabled="article.favoriteDisabled"
+              >
+              <i class="ion-heart"></i>{{article.favoritesCount}}
             </button>
           </div>
-          <a href="" class="preview-link">
-            <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-            <p>This is the description for the post.</p>
+          <nuxt-link :to="{name: 'article',
+              params: {
+                slug: article.slug
+              }
+            }" class="preview-link">
+            <h1>{{article.title}}</h1>
+            <p>{{article.description}}</p>
             <span>Read more...</span>
             <ul class="tag-list">
               <li class="tag-default tag-pill tag-outline">Music</li>
               <li class="tag-default tag-pill tag-outline">Song</li>
             </ul>
-          </a>
+          </nuxt-link>
         </div>
 
 
@@ -66,7 +88,7 @@
     </div>
 </template>
 <script>
-import {getProfile} from '@/api/user'
+import {getProfile, follow, unfollow} from '@/api/user'
 import {getArticles} from '@/api/article'
 export default {
     name: 'profile',
@@ -78,7 +100,7 @@ export default {
       const { profile} = data
       const limit =20
       const offset = (page -1) * limit
-      const {data:articles} = await getArticles(
+      const {data:articlesRes} = await getArticles(
         {
           limit,
           offset
@@ -87,8 +109,37 @@ export default {
       console.log('articles', articles)
       return {
         profile,
-        articles
+        articles: articlesRes.articles,
+        articlesCount: articlesRes.articlesCount,
+        page
       }
+    },
+    methods: {
+      async onFollow(profile) {
+        profile.followDisabled = true
+        if(profile.following) {
+          const {profile} = await unfollow(profile.username)
+        }else{
+          const {profile} =await follow(profile.username)
+
+        }
+        profile.followDisabled = false
+      },
+      async onFavorite(article) {
+        console.log(article)
+        article.favoriteDisabled = true
+        if(article.favorited) {
+          await deleteFavorite(article.slug)
+          article.favorited = false
+          article.favoritesCount += -1
+        } else {
+          await addFavorite(article.slug)
+          article.favorited = true
+          article.favoritesCount +=1
+        }
+        article.favoriteDisabled = false
+      }
+
     }
 }
 </script>

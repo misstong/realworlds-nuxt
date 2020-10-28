@@ -35,3 +35,17 @@ export const getProfile = (username) => {
         url: `profiles/${username}`
     })
 }
+
+export const follow = (username) => {
+    return request({
+        method: 'post',
+        url: `profiles/${username}/follow`
+    })
+}
+
+export const unfollow = (username) => {
+    return request({
+        method: 'delete',
+        url: `profiles/${username}/follow`
+    })
+}
