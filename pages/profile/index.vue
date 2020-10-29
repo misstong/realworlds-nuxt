@@ -30,10 +30,27 @@
         <div class="articles-toggle">
           <ul class="nav nav-pills outline-active">
             <li class="nav-item">
-              <a class="nav-link active" href="">My Articles</a>
+              <nuxt-link class="nav-link"
+                :to="{
+                  name: 'profile',
+                  params: {
+                    username: profile.username
+                  }}">My Articles
+               </nuxt-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="">Favorited Articles</a>
+              <nuxt-link 
+                class="nav-link" 
+                :to="{
+                  name: 'profile',
+                  params: {
+                    username: profile.username
+                  },
+                  query: {
+                    favorited: profile.username
+                  }
+                  }">Favorited Articles
+              </nuxt-link>
             </li>
           </ul>
         </div>
@@ -80,6 +97,17 @@
           </nuxt-link>
         </div>
 
+        <nav>
+          <ul class="pagination">
+            <li class="page-item"
+                :class="{active: page===i}"
+             v-for="i in totalPage" :key="i">
+              <!-- <a class="page-link" :href="'/?page='+i">{{i}}</a> -->
+              <nuxt-link class="page-link" :to="`?page=${i}`">{{i}}</nuxt-link>
+              <!-- //必须watchQuery -->
+            </li>
+          </ul>
+        </nav>
 
       </div>
 
@@ -93,27 +121,39 @@ import {getArticles} from '@/api/article'
 export default {
     name: 'profile',
     async asyncData({params, query}) {
-      console.log('params', params)
+      // console.log('params', params)
       const page = Number.parseInt(query.page) || 1
       const { data } = await getProfile(params.username)
-      console.log('profile', data)
+      // console.log('profile', data)
       const { profile} = data
       const limit =20
       const offset = (page -1) * limit
+      const favorited = query.favorited
+
       const {data:articlesRes} = await getArticles(
         {
           limit,
-          offset
+          offset,
+          favorited
         }
       )
-      console.log('articles', articles)
+      
+      // console.log('articles', articlesRes)
+      console.log(page,limit,articlesRes.articles,)
       return {
         profile,
         articles: articlesRes.articles,
         articlesCount: articlesRes.articlesCount,
-        page
+        page,
+        limit
       }
     },
+     computed: {
+      totalPage(){
+        return Math.ceil(this.articlesCount/this.limit)
+      }
+    },
+    watchQuery: ['page', 'favorited'],
     methods: {
       async onFollow(profile) {
         profile.followDisabled = true
